@@ -21,12 +21,6 @@ set number                        "行番号表示
 set ruler                         "カーソルが何行目の何列目に置かれているかを表示する
 set nocompatible
 set nostartofline
-" インデント設定
-set autoindent
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
-set expandtab
 " 文字設定
 "set ambiwidth=double
 set ambiwidth=single
@@ -48,6 +42,19 @@ set background=dark "背景色が暗い
 " 検索設定
 set hlsearch " 検索結果のハイライトをON (OFF: nohlsearch)
 set incsearch " インクリメンタルサーチ
+" indent
+set autoindent
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+augroup FileTypeIndent
+  autocmd!
+  autocmd FileType html setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd FileType javascript setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd FileType ruby setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd FileType vim setlocal tabstop=2 softtabstop=2 shiftwidth=2
+augroup END
 " 末尾の空白をハイライト表示
 augroup HighlightTrailingSpaces
   autocmd!
