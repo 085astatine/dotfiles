@@ -1,8 +1,8 @@
 set -eu
 # root directory of this repository
 DOTFILES_ROOT=$(git rev-parse --show-toplevel)
-# target directories
-target_directories(){
+# root directories
+root_directories(){
     local target_list=()
     local directory
     # home
@@ -20,13 +20,20 @@ target_directories(){
 }
 # file list
 file_list(){
-    target_directories \
-        | xargs -I{} find {} -maxdepth 1 -type f
+    root_directories \
+        | xargs -I{} find {} -mindepth 1 -type f
 }
 # directory list
 dir_list(){
-    target_directories \
-        | xargs -I{} find {} -mindepth 1  -maxdepth 1 -type d
+    root_directories \
+        | xargs -I{} find {} -mindepth 1 -type d
+}
+# convert source -> destination
+to_destination()
+{
+    local source=$1
+    echo "${source}" \
+        | sed -e "s@${DOTFILES_ROOT}/[^/]\+/@${HOME}/@"
 }
 # execute command
 execute(){
@@ -35,31 +42,34 @@ execute(){
 }
 # create symlink
 link_dotfiles(){
-    local file
-    for file in $(file_list)
-    do
-        local destination=${HOME}/$(basename ${file})
-        execute ln -s -f ${file} ${destination}
-    done
     local dir
     for dir in $(dir_list)
     do
-        execute ln -s -f ${dir} ${HOME}
+        local destination=$(to_destination ${dir})
+        if [ ! -d ${destination} ]; then
+            execute mkdir -p ${destination}
+        fi
+    done
+    local file
+    for file in $(file_list)
+    do
+        local destination=$(to_destination ${file})
+        execute ln -s -f ${file} ${destination}
     done
 }
 # copy
 copy_dotfiles(){
-    local file
-    for file in $(file_list)
-    do
-        local destination=${HOME}/$(basename ${file})
-        execute cp -f -v ${file} ${destination}
-    done
     local dir
     for dir in $(dir_list)
     do
-        local destination=${HOME}/$(basename ${dir})
+        local destination=$(to_destination ${dir})
         execute cp -r -f -v ${dir} ${destination}
+    done
+    local file
+    for file in $(file_list)
+    do
+        local destination=$(to_destination ${file})
+        execute cp -f -v ${file} ${destination}
     done
 }
 # clean
@@ -67,19 +77,18 @@ clean_dotfiles(){
     local file
     for file in $(file_list)
     do
-        local destination=${HOME}/$(basename ${file})
+        local destination=$(to_destination ${file})
         if [ -e ${destination} ]; then
             execute rm -v ${destination}
         fi
     done
     local dir
-    for dir in $(dir_list)
+    for dir in $(dir_list | tac)
     do
-        local destination=${HOME}/$(basename ${dir})
-        if [ -L ${destination} ]; then
-            execute rm -v ${destination}
-        elif [ -e ${destination} ]; then
-            execute rm -r -v ${destination}
+        local destination=$(to_destination ${dir})
+        echo ${destination}
+        if [ -e ${destination} -a -z "$(ls -A ${destination})" ]; then
+            execute rmdir -v ${destination}
         fi
     done
 }
