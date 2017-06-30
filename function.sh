@@ -63,7 +63,9 @@ copy_dotfiles(){
     for dir in $(dir_list)
     do
         local destination=$(to_destination ${dir})
-        execute cp -r -f -v ${dir} ${destination}
+        if [ ! -d ${destination} ]; then
+            execute mkdir -p ${destination}
+        fi
     done
     local file
     for file in $(file_list)
