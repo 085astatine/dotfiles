@@ -6,10 +6,9 @@
 [[ $- != *i* ]] && return
 
 alias ls='ls --color=auto'
+# PS1
 #PS1='[\u@\h \W]\$ '
 PS1='\e[32m\u@\h\e[m \e[33m\w\e[m\n$? > '
-# path
-export PATH=~/bin:$PATH
 # git-completion
 if [ -e /usr/share/git/completion/git-completion.bash ]; then
     source /usr/share/git/completion/git-completion.bash
