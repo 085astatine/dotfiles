@@ -4,4 +4,4 @@ set -ue
 
 git ls-files \
     | grep -E "*.py$" \
-    | xargs pep8 $@
+    | xargs pycodestyle $@
