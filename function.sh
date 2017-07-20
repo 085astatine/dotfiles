@@ -21,7 +21,7 @@ root_directories(){
 # file list
 file_list(){
     root_directories \
-        | xargs -I{} find {} -mindepth 1 -type f
+        | xargs -I{} find {} -mindepth 1 -type f -not -name ".gitkeep"
 }
 # directory list
 dir_list(){
