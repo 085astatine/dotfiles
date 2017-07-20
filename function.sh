@@ -88,8 +88,7 @@ clean_dotfiles(){
     for dir in $(dir_list | tac)
     do
         local destination=$(to_destination ${dir})
-        echo ${destination}
-        if [ -e ${destination} -a -z "$(ls -A ${destination})" ]; then
+        if [ -e ${destination} ]  && [ -z "$(ls -A ${destination})" ]; then
             execute rmdir -v ${destination}
         fi
     done
