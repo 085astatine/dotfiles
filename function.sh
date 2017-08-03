@@ -7,6 +7,10 @@ root_directories(){
     local directory
     # home
     target_list+=("home")
+    # msys
+    if uname | grep MSYS > /dev/null; then
+        target_list+=("msys")
+    fi
     echo "${target_list[@]}" \
         | tr -s '[:space:]' '\n' \
         | sort \
