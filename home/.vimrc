@@ -15,12 +15,17 @@ set noswapfile                    "swapをつくらない
 set hidden                        "編集中でも他のファイルを開けるようにする
 set backspace=indent,eol,start    "backspaceで消せるようにする
 set vb t_vb=                      "ビープ音を鳴らさない
-set clipboard=unnamed             "OSのクリップボードを使用する
 set list                          "タブ文字、行末など不可視文字を表示する
 set number                        "行番号表示
 set ruler                         "カーソルが何行目の何列目に置かれているかを表示する
 set nocompatible
 set nostartofline
+" clipboard
+set clipboard&
+set clipboard^=unnamed,unnamedplus
+if executable('xsel')
+  autocmd VimLeave * call system("xsel -ib", getreg('+'))
+endif
 " 文字設定
 "set ambiwidth=double
 set ambiwidth=single
