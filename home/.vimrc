@@ -49,16 +49,13 @@ set hlsearch " 検索結果のハイライトをON (OFF: nohlsearch)
 set incsearch " インクリメンタルサーチ
 " indent
 set autoindent
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 set expandtab
 augroup FileTypeIndent
   autocmd!
-  autocmd FileType html setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd FileType javascript setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd FileType ruby setlocal tabstop=2 softtabstop=2 shiftwidth=2
-  autocmd FileType vim setlocal tabstop=2 softtabstop=2 shiftwidth=2
+  autocmd FileType python setlocal tabstop=4 softtabstop=4 shiftwidth=4
 augroup END
 " highlight
 " highlight: cursor line number
