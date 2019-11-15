@@ -13,3 +13,5 @@ PS1='\e[32m\u@\h\e[m \e[33m\w\e[m\n$? > '
 if [ -e /usr/share/git/completion/git-completion.bash ]; then
     source /usr/share/git/completion/git-completion.bash
 fi
+# Python
+export PIPENV_VENV_IN_PROJECT=true
