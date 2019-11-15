@@ -77,3 +77,6 @@ augroup HighlightTrailingSpaces
   autocmd VimEnter,WinEnter,ColorScheme * highlight TrailingSpaces term=underline guibg=blue ctermbg=blue
   autocmd VimEnter,WinEnter * match TrailingSpaces /\s\+$/
 augroup end
+" increment/decrement
+nnoremap + <C-a>
+nnoremap - <C-x>
