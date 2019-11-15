@@ -64,6 +64,11 @@ augroup END
 " highlight: cursor line number
 set cursorline
 highlight clear CursorLine
+augroup number
+  autocmd!
+  autocmd InsertEnter * highlight CursorLineNr ctermfg=red guifg=red
+  autocmd InsertLeave,VimEnter * highlight CursorLineNr ctermfg=blue guifg=blue
+augroup end
 " 末尾の空白をハイライト表示
 augroup HighlightTrailingSpaces
   autocmd!
