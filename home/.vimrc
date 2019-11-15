@@ -60,6 +60,10 @@ augroup FileTypeIndent
   autocmd FileType ruby setlocal tabstop=2 softtabstop=2 shiftwidth=2
   autocmd FileType vim setlocal tabstop=2 softtabstop=2 shiftwidth=2
 augroup END
+" highlight
+" highlight: cursor line number
+set cursorline
+highlight clear CursorLine
 " 末尾の空白をハイライト表示
 augroup HighlightTrailingSpaces
   autocmd!
