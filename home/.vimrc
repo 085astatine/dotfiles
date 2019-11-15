@@ -3,50 +3,55 @@ filetype on
 filetype indent off
 filetype plugin on
 
-" 基本設定
-set encoding=utf8                 "エンコーディング設定
-set fileencoding=utf-8            "カレントバッファ内のファイルの文字エンコーディングを設定する
-set scrolloff=5                   "カーソルの上または下に表示する最小限の行数
-set nowrap                        "(no)ウィンドウの幅を超える行の折り返し設定
-set nobackup                      "(no)ファイルを上書きする前にバックアップファイルを作る
+" encoding
+set encoding=utf8
+set fileencoding=utf-8
+" backup
+set nobackup
 set backupskip=/tmp/*,/private/tmp/*
-set autoread                      "他で書き換えられた場合、自動で読みなおす
-set noswapfile                    "swapをつくらない
-set hidden                        "編集中でも他のファイルを開けるようにする
-set backspace=indent,eol,start    "backspaceで消せるようにする
-set vb t_vb=                      "ビープ音を鳴らさない
-set list                          "タブ文字、行末など不可視文字を表示する
-set number                        "行番号表示
-set ruler                         "カーソルが何行目の何列目に置かれているかを表示する
+" swap
+set noswapfile
+" lock
+set autoread
+set hidden
+" bell
+set visualbell t_vb=
+" show
+set list
+set number
+set ruler
+" cursor
 set nocompatible
+set whichwrap=b,s,[,],<,>,~
+" scroll
 set nostartofline
+set scrolloff=5
 " clipboard
 set clipboard&
 set clipboard^=unnamed,unnamedplus
 if executable('xsel')
   autocmd VimLeave * call system("xsel -ib", getreg('+'))
 endif
-" 文字設定
-"set ambiwidth=double
-set ambiwidth=single
-"set listchars=eol:$,tab:>\ ,trail:- " EOL,タブ,行末尾の空白を可視化する
-set listchars=eol:¬,tab:>\ ,trail:- " EOL,タブ,行末尾の空白を可視化する
-set whichwrap=b,s,[,],<,>,~
-" 括弧
-set showmatch   "対応する括弧やプレースを表示する
-set matchtime=1 "0.1sec
-" 1行の文字数が多い場合
+" chars
+set backspace=indent,eol,start
+set ambiwidth=single  " single/double
+set listchars=eol:¬,tab:>\ ,trail:-
+" brackets
+set showmatch
+set matchtime=1  " unit: 0.1sec
+" layout
+set nowrap
 set display=lastline
 set textwidth=0
 set colorcolumn=80
-" 色設定
+" color
 set t_Co=256
 colorscheme molokai
 set background=light
-set background=dark "背景色が暗い
-" 検索設定
-set hlsearch " 検索結果のハイライトをON (OFF: nohlsearch)
-set incsearch " インクリメンタルサーチ
+set background=dark
+" search
+set hlsearch
+set incsearch
 " indent
 set autoindent
 set tabstop=2
@@ -56,7 +61,7 @@ set expandtab
 augroup FileTypeIndent
   autocmd!
   autocmd FileType python setlocal tabstop=4 softtabstop=4 shiftwidth=4
-augroup END
+augroup end
 " highlight
 " highlight: cursor line number
 set cursorline
@@ -66,10 +71,9 @@ augroup number
   autocmd InsertEnter * highlight CursorLineNr ctermfg=red guifg=red
   autocmd InsertLeave,VimEnter * highlight CursorLineNr ctermfg=blue guifg=blue
 augroup end
-" 末尾の空白をハイライト表示
+" highlight: trailing spaces
 augroup HighlightTrailingSpaces
   autocmd!
-  autocmd VimEnter,WinEnter,ColorScheme * highlight TrailingSpaces term=underline guibg=Blue ctermbg=Blue
-  "autocmd VimEnter,WinEnter,ColorScheme * highlight TrailingSpaces term=underline guibg=Red ctermbg=Red
+  autocmd VimEnter,WinEnter,ColorScheme * highlight TrailingSpaces term=underline guibg=blue ctermbg=blue
   autocmd VimEnter,WinEnter * match TrailingSpaces /\s\+$/
-augroup END
+augroup end
