@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -eu
+
+if [ $# -ne 1 ]; then
+  echo Error: target is unspecified
+  echo $(basename $0) TARGET
+  exit 1
+fi
+
+echo target: ${1}
+
+url="https://raw.githubusercontent.com/github/gitignore/master/${1}.gitignore"
+status_code=$(curl -s -I ${url} -o /dev/null -w "%{http_code}")
+
+if [ ${status_code} -eq 200 ]; then
+  echo download ${1}.gitignore
+  echo "# ${1}.gitignore" >> .gitignore
+  curl -s ${url} >> .gitignore
+else
+  echo Error: ${1}.gitignore is not found
+fi
