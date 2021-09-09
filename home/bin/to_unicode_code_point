@@ -3,7 +3,7 @@
 _to_unicode_code_point() {
   while IFS= read -r string;
   do
-    echo -n "$string" \
+    echo -e -n "$string" \
     | while read -N 1 c; \
       do \
         d=$(echo -n "$c" | iconv -t UCS-2BE | xxd -p); \
