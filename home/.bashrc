@@ -18,6 +18,8 @@ export PIPENV_VENV_IN_PROJECT=true
 
 # WSL
 if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
+  # PATH
+  export PATH=~/bin:$PATH
   # Display
   export DISPLAY=`hostname`.mshome.net:0
 fi
