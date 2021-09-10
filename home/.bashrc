@@ -19,5 +19,5 @@ export PIPENV_VENV_IN_PROJECT=true
 # WSL
 if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   # Display
-  export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+  export DISPLAY=`hostname`.mshome.net:0
 fi
