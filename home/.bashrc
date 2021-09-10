@@ -14,6 +14,8 @@ export PIPENV_VENV_IN_PROJECT=true
 
 # WSL
 if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
+  # LANG
+  export LANG=en_US.UTF-8
   # PATH
   export PATH=~/bin:$PATH
   # Display
