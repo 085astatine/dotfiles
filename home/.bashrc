@@ -21,3 +21,11 @@ if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   # Display
   export DISPLAY=`hostname`.mshome.net:0
 fi
+
+# IME: fcitx
+if [ -e /usr/bin/fcitx-autostart ]; then
+  export GTK_IM_MODULE=fcitx
+  export QT_IM_MODULE=fcitx
+  export XMODIFIERS=@im=fcitx
+  (fcitx-autostart >/dev/null 2>&1 &)
+fi
