@@ -1,18 +1,29 @@
 #!/bin/bash
 
-for string in "$@";
-do
-  echo -n "$string" \
-  | while read -N 1 c; \
-    do \
-      d=$(echo -n "$c" | iconv -t UCS-2BE | xxd -p); \
-      if [[ "$d" == "fffd" ]]; then \
-        echo -n "$c" \
-          | iconv -t UCS-4BE \
-          | xxd -p \
-          | xargs printf '\\U%s'; \
-      else \
-        printf '\\u%s' $d; \
-      fi; \
-    done && printf '\n'
-done
+_to_unicode_code_point() {
+  while IFS= read -r string;
+  do
+    echo -e -n "$string" \
+    | while read -N 1 c; \
+      do \
+        d=$(echo -n "$c" | iconv -t UCS-2BE | xxd -p); \
+        if [[ "$d" == "fffd" ]]; then \
+          echo -n "$c" \
+            | iconv -t UCS-4BE \
+            | xxd -p \
+            | xargs printf '\\U%s'; \
+        else \
+          printf '\\u%s' $d; \
+        fi; \
+      done && printf '\n'
+  done
+}
+
+if [ -p /dev/stdin ]; then
+  cat -
+else
+  for string in "$@";
+  do
+    echo "$string"
+  done
+fi | _to_unicode_code_point
