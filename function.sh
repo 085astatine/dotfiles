@@ -8,7 +8,7 @@ root_directories(){
     # home
     target_list+=("home")
     # msys
-    if uname | grep MSYS > /dev/null; then
+    if [ -n "${MSYSTEM-}" ]; then
         target_list+=("msys")
     fi
     echo "${target_list[@]}" \
