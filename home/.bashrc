@@ -15,3 +15,9 @@ if [ -e /usr/share/git/completion/git-completion.bash ]; then
 fi
 # Python
 export PIPENV_VENV_IN_PROJECT=true
+
+# WSL
+if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
+  # Display
+  export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+fi
