@@ -1,0 +1,162 @@
+#!/usr/bin/env python
+
+import argparse
+import datetime
+import logging
+from typing import Any, Literal, Optional, Sequence, cast, get_args
+
+
+def main() -> None:
+    logger = create_logger()
+    # option
+    option = option_parser().parse_args()
+    if option.verbose:
+        logger.setLevel(logging.DEBUG)
+    logger.debug('option: %s', option)
+    # target
+    match option.target:
+        case 'weekly_report':
+            logger.info('weekly_report: %s', option.date)
+            print(Week(option.date).weekly_report_template())
+        case 'weekly_report_list':
+            logger.info('weekly_report_list: %s', option.date)
+            print(weekly_report_list(option.date.year, logger))
+
+
+TARGETS = Literal['weekly_report', 'weekly_report_list']
+
+
+class Week:
+    def __init__(self, date: datetime.date) -> None:
+        self._monday = date - datetime.timedelta(days=date.weekday())
+
+    def next_week(self) -> 'Week':
+        return Week(self.monday + datetime.timedelta(days=7))
+
+    def prev_week(self) -> 'Week':
+        return Week(self.monday - datetime.timedelta(days=7))
+
+    def report_title(self) -> str:
+        date_format = '{date.year:04}/{date.month:02}/{date.day:02}'
+        return (date_format.format(date=self.monday)
+                + '-'
+                + date_format.format(date=self.sunday))
+
+    def weekly_report_template(self) -> str:
+        text: list[str] = []
+        # title
+        text.append(self.report_title())
+        # tag
+        text.append(' '.join(
+                f'#週報_{year}'
+                for year in sorted(set(day.year for day in self.days()))))
+        # link
+        text.append(
+                f'[{self.prev_week().report_title()}]<-'
+                f' ->[{self.next_week().report_title()}]')
+        # days
+        for day in self.days():
+            kanji = '月火水木金土日'[day.weekday()]
+            text.append(f'[* {day.month:02}/{day.day:02}({kanji})]')
+        return '\n'.join(text)
+
+    def days(self) -> list[datetime.date]:
+        return [self.monday + datetime.timedelta(days=days)
+                for days in range(7)]
+
+    @property
+    def monday(self) -> datetime.date:
+        return self._monday
+
+    @property
+    def tuesday(self) -> datetime.date:
+        return self.monday + datetime.timedelta(days=1)
+
+    @property
+    def wednesday(self) -> datetime.date:
+        return self.monday + datetime.timedelta(days=2)
+
+    @property
+    def thursday(self) -> datetime.date:
+        return self.monday + datetime.timedelta(days=3)
+
+    @property
+    def friday(self) -> datetime.date:
+        return self.monday + datetime.timedelta(days=4)
+
+    @property
+    def saturday(self) -> datetime.date:
+        return self.monday + datetime.timedelta(days=5)
+
+    @property
+    def sunday(self) -> datetime.date:
+        return self.monday + datetime.timedelta(days=6)
+
+
+def weekly_report_list(
+        year: int,
+        logger: logging.Logger) -> str:
+    text: list[str] = []
+    # title
+    text.append(f'週報 {year}')
+    # link
+    text.append(f'[週報 {year-1}]<- ->[週報 {year+1}]')
+    # week
+    month_header = 0
+    week = Week(datetime.date(year=year, month=1, day=1))
+    while week.monday.year <= year:
+        month = min(day.month for day in week.days() if day.year == year)
+        if month_header < month:
+            month_header = month
+            text.append(f'[* {month_header:02}月]')
+        text.append(f'[{week.report_title()}]')
+        week = week.next_week()
+    return '\n'.join(text)
+
+
+def create_logger() -> logging.Logger:
+    logger = logging.getLogger('scrapbox-template')
+    logger.setLevel(logging.WARNING)
+    handler = logging.StreamHandler()
+    handler.formatter = logging.Formatter(
+            fmt='%(name)s:%(levelname)s:%(message)s')
+    logger.addHandler(handler)
+    return logger
+
+
+def option_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser()
+    # target
+    parser.add_argument(
+            'target',
+            choices=get_args(TARGETS),
+            help='the type of template to be generated')
+    # verbose
+    parser.add_argument(
+            '-v', '--verbose',
+            action='store_true',
+            help='set log level to debug')
+    # date
+    parser.add_argument(
+            '--date',
+            action=DateAction,
+            default=datetime.date.today(),
+            metavar='YYYY-MM-DD',
+            help='date for weekly_report/weekly_report_list')
+    return parser
+
+
+class DateAction(argparse.Action):
+    def __call__(
+            self,
+            parser: argparse.ArgumentParser,
+            namespace: argparse.Namespace,
+            values: str | Sequence[Any] | None,
+            option_flag: Optional[str] = None) -> None:
+        setattr(namespace,
+                self.dest,
+                datetime.date.fromisoformat(cast(str, values)))
+
+
+if __name__ == '__main__':
+    main()
