@@ -1,7 +1,248 @@
-#!/bin/bash
+#!/usr/bin/env python
 
-set -ue
+import dataclasses
+import logging
+import pathlib
+import random
+import subprocess
+import sys
+from typing import Literal, Optional
 
-git ls-files \
-    | grep -E "*.py$" \
-    | xargs pycodestyle $@
+
+def main() -> None:
+    logger = create_logger()
+    # path node tree
+    ignore_paths = ['.venv']
+    path_node_root = create_path_node_tree(logger, ignore_paths)
+    # pycodestyle target
+    targets = pycodestyle_targets(path_node_root, logger)
+    for target in targets:
+        return_code = execute_pycodestyle(target, sys.argv[1:], logger)
+        if return_code != 0:
+            sys.exit(return_code)
+
+
+def git_repository_root(logger: logging.Logger) -> pathlib.Path:
+    command = ['git', 'rev-parse', '--show-toplevel']
+    process = run_command(command, logger, cwd=None)
+    return pathlib.Path(process.stdout.rstrip('\n'))
+
+
+def git_ls_files(logger: logging.Logger) -> list[pathlib.Path]:
+    command = ['git', 'ls-files', '*.py']
+    git_root = git_repository_root(logger)
+    process = run_command(command, logger, cwd=git_root)
+    return [git_root.joinpath(file)
+            for file in process.stdout.strip().split('\n')]
+
+
+PathNodeType = Literal['root', 'package', 'tracked', 'untracked']
+
+
+class PathNode:
+    def __init__(self, path: pathlib.Path, node_type: PathNodeType) -> None:
+        self._name = path.as_posix()
+        self._path = path
+        self._node_type = node_type
+        self._children: list['PathNode'] = []
+
+    def add(self, node: 'PathNode') -> None:
+        # check
+        if self.exists(node.path):
+            return
+        # add to child
+        for child in self._children:
+            if node.path.is_relative_to(child.path):
+                child.add(node)
+                return
+        # add to self
+        #  replace node name with relative path
+        node._name = node._path.relative_to(self.path).as_posix()
+        #  move children if new node is parent
+        for child in self._children[:]:
+            if child.path.is_relative_to(node.path):
+                node.add(child)
+                self._children.remove(child)
+        self.children.append(node)
+        self.children.sort(key=lambda node: node.path)
+
+    def exists(self, path: pathlib.Path) -> bool:
+        return (self.path == path
+                or any(child.exists(path) for child in self.children))
+
+    def pretty_print(self) -> str:
+        return '\n'.join(self._pretty_print(indent_level=0))
+
+    def _pretty_print(self, indent_level: int) -> list[str]:
+        text: list[str] = []
+        indent = '  ' * indent_level
+        # self
+        text.append(f'{indent}{self.name} ({self.node_type})')
+        # children
+        for child in self.children:
+            text.extend(child._pretty_print(indent_level=indent_level+1))
+        return text
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def path(self) -> pathlib.Path:
+        return self._path
+
+    @property
+    def node_type(self) -> PathNodeType:
+        return self._node_type
+
+    @property
+    def children(self) -> list['PathNode']:
+        return self._children
+
+
+def tracked_files(node: PathNode) -> list[pathlib.Path]:
+    files: list[pathlib.Path] = []
+    if node.node_type == 'tracked':
+        files.append(node.path)
+    for child in node.children:
+        files.extend(tracked_files(child))
+    return files
+
+
+def untracked_files(node: PathNode) -> list[pathlib.Path]:
+    files: list[pathlib.Path] = []
+    if node.node_type == 'untracked':
+        files.append(node.path)
+    for child in node.children:
+        files.extend(untracked_files(child))
+    return files
+
+
+def create_path_node_tree(
+        logger: logging.Logger,
+        ignore: list[str]) -> PathNode:
+    # git repository root
+    git_root_path = git_repository_root(logger)
+    logger.info('git repository root: %s', git_root_path)
+    # create root_node
+    root_node = PathNode(git_root_path, 'root')
+    # git tracked
+    git_files = git_ls_files(logger)
+    random.shuffle(git_files)
+    for code in git_files:
+        root_node.add(create_path_node(code, 'tracked'))
+    logger.debug('git tracked tree:\n%s', root_node.pretty_print())
+    # git untrackd
+    ignore_paths = [git_root_path.joinpath(path) for path in ignore]
+    for untracked in filter(
+            lambda path: (
+                    not root_node.exists(path)
+                    and all(not path.is_relative_to(ignore_path)
+                            for ignore_path in ignore_paths)),
+            git_root_path.glob('**/*.py')):
+        root_node.add(create_path_node(untracked, 'untracked'))
+    logger.debug('path node tree:\n%s', root_node.pretty_print())
+    return root_node
+
+
+def create_path_node(path: pathlib.Path, node_type: PathNodeType) -> PathNode:
+    code_node = PathNode(path, node_type)
+    # code
+    if path.name != '__init__.py':
+        return code_node
+    # package
+    package_node = PathNode(path.parent, 'package')
+    package_node.add(code_node)
+    return package_node
+
+
+@dataclasses.dataclass
+class PyCodeStyleTarget:
+    target: pathlib.Path
+    excluded: Optional[list[pathlib.Path]] = None
+
+
+def pycodestyle_targets(
+        root_node: PathNode,
+        logger: logging.Logger) -> list[PyCodeStyleTarget]:
+    targets: list[PyCodeStyleTarget] = []
+    for node in root_node.children:
+        logger.info('node: %s (%s))', node.path, node.node_type)
+        if node.node_type == 'package':
+            tracked = tracked_files(node)
+            if not tracked:
+                logger.info('package(%s) is untracked', node.path)
+                continue
+            targets.append(PyCodeStyleTarget(
+                    target=node.path,
+                    excluded=untracked_files(node)))
+            logger.info('target: %s', targets[-1])
+        elif node.node_type == 'tracked':
+            targets.append(PyCodeStyleTarget(target=node.path))
+            logger.info('target: %s', targets[-1])
+    return targets
+
+
+def execute_pycodestyle(
+        target: PyCodeStyleTarget,
+        argument: list[str],
+        logger: logging.Logger) -> int:
+    git_root = git_repository_root(logger)
+    # command
+    command: list[str] = []
+    command.append('pycodestyle')
+    command.append(target.target.relative_to(git_root).as_posix())
+    command.extend(argument)
+    if target.excluded:
+        command.append('--exclude={}'.format(','.join(
+                path.relative_to(git_root).as_posix()
+                for path in target.excluded)))
+    # execute
+    sys.stdout.write(' '.join(command))
+    sys.stdout.write('\n')
+    try:
+        process = run_command(command, logger, cwd=git_root)
+    except subprocess.CalledProcessError as error:
+        sys.stdout.write(error.stdout)
+        return error.returncode
+    return process.returncode
+
+
+def run_command(
+        command: list[str],
+        logger: logging.Logger,
+        *,
+        cwd: Optional[pathlib.Path] = None) -> subprocess.CompletedProcess:
+    logger.debug('git command: %s', command)
+    try:
+        process = subprocess.run(
+                command,
+                check=True,
+                cwd=cwd,
+                encoding='utf-8',
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as error:
+        error_info = {
+                'return_code': error.returncode,
+                'command': error.cmd,
+                'stdout': error.stdout,
+                'stderr': error.stderr}
+        logger.info('%s: %s', error.__class__.__name__, error_info)
+        raise error
+    logger.debug('stdout: %s', repr(process.stdout))
+    return process
+
+
+def create_logger() -> logging.Logger:
+    logger = logging.getLogger('git-pep8')
+    logger.setLevel(logging.WARNING)
+    handler = logging.StreamHandler()
+    handler.formatter = logging.Formatter(
+            fmt='%(name)s:%(levelname)s:%(message)s')
+    logger.addHandler(handler)
+    return logger
+
+
+if __name__ == '__main__':
+    main()
