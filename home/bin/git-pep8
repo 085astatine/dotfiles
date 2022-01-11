@@ -17,7 +17,7 @@ def main() -> None:
     # pycodestyle target
     targets = pycodestyle_targets(path_node_root, logger)
     for target in targets:
-        return_code = execute_pycodestyle(target, logger)
+        return_code = execute_pycodestyle(target, sys.argv[1:], logger)
         if return_code != 0:
             sys.exit(return_code)
 
@@ -185,12 +185,14 @@ def pycodestyle_targets(
 
 def execute_pycodestyle(
         target: PyCodeStyleTarget,
+        argument: list[str],
         logger: logging.Logger) -> int:
     git_root = git_repository_root(logger)
     # command
     command: list[str] = []
     command.append('pycodestyle')
     command.append(target.target.relative_to(git_root).as_posix())
+    command.extend(argument)
     if target.excluded:
         command.append('--exclude={}'.format(','.join(
                 path.relative_to(git_root).as_posix()
