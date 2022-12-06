@@ -14,6 +14,7 @@ export PIPENV_VENV_IN_PROJECT=true
 
 # key bind
 stty stop undef
+bind '"\C-h": beginning-of-line'
 
 # WSL
 if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
