@@ -12,6 +12,12 @@ PS1='\e[32m\u@\h\e[m \e[33m\w\e[m\n$? > '
 # Python
 export PIPENV_VENV_IN_PROJECT=true
 
+# key bind
+stty stop undef
+bind '"\C-h": beginning-of-line'
+bind '"\C-l": end-of-line'
+bind '"\C-e": clear-screen'
+
 # WSL
 if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   # LANG
