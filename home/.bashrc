@@ -16,6 +16,7 @@ export PIPENV_VENV_IN_PROJECT=true
 stty stop undef
 bind '"\C-h": beginning-of-line'
 bind '"\C-l": end-of-line'
+bind '"\C-e": clear-screen'
 
 # WSL
 if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
