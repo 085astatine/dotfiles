@@ -11,9 +11,10 @@ if &runtimepath !~# '/dein.vim'
   " add to runtimepath
   execute 'set runtimepath^=' .. s:dein_runtime
 endif
-" load TOML
+" load TOML plugin configuration
 if dein#load_state(s:dein_dir)
   call dein#begin(s:dein_dir)
+  call dein#load_toml('~/.vim/dein.toml', {'lazy': 0})
   call dein#end()
   call dein#save_state()
 endif
