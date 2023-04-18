@@ -1,8 +1,32 @@
+filetype on
+" Dein.vim
+let s:dein_dir = expand('~/.cache/dein')
+let s:dein_runtime = s:dein_dir .. '/repos/github.com/Shougo/dein.vim'
+" install Dein.vim
+if &runtimepath !~# '/dein.vim'
+  if !isdirectory(s:dein_runtime)
+    call mkdir(s:dein_runtime, 'p')
+    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_runtime
+  endif
+  " add to runtimepath
+  execute 'set runtimepath^=' .. s:dein_runtime
+endif
+" load TOML plugin configuration
+if dein#load_state(s:dein_dir)
+  call dein#begin(s:dein_dir)
+  call dein#load_toml('~/.vim/dein.toml', {'lazy': 0})
+  call dein#end()
+  call dein#save_state()
+endif
+" install not-installed plugins on startup
+if dein#check_install()
+  call dein#install()
+endif
+
 syntax on
 filetype on
 filetype indent off
 filetype plugin on
-
 " encoding
 set encoding=utf8
 set fileencoding=utf-8

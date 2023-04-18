@@ -1,0 +1,18 @@
+[[plugins]]
+repo = 'cakebaker/scss-syntax.vim'
+on_ft = 'scss'
+
+[[plugins]]
+repo = 'dcharbon/vim-flatbuffers'
+on_ft = 'fbs'
+
+[[plugins]]
+repo = 'HerringtonDarkholme/yats.vim'
+on_ft = 'typescript'
+
+[[plugins]]
+repo = 'lark-parser/vim-lark-syntax'
+on_ft = 'lark'
+
+[[plugins]]
+repo = 'Shougo/dein.vim'
