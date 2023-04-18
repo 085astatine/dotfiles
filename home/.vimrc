@@ -1,22 +1,29 @@
 filetype on
+" Dein.vim
+let s:dein_dir = expand('~/.cache/dein')
+let s:dein_runtime = s:dein_dir .. '/repos/github.com/Shougo/dein.vim'
 " install Dein.vim
-let $CACHE = expand('~/.cache')
-if !isdirectory($CACHE)
-  call mkdir($CACHE, 'p')
-endif
 if &runtimepath !~# '/dein.vim'
-  let s:dein_dir = fnamemodify('dein.vim', ':p')
-  if !isdirectory(s:dein_dir)
-    let s:dein_dir = $CACHE .. '/dein/repos/github.com/Shougo/dein.vim'
-    if !isdirectory(s:dein_dir)
-      execute '!git clone https://github.com/Shougo/dein.vim' s:dein_dir
-    endif
+  if !isdirectory(s:dein_runtime)
+    call mkdir(s:dein_runtime, 'p')
+    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_runtime
   endif
-  execute 'set runtimepath^=' .. substitute(
-        \ fnamemodify(s:dein_dir, ':p') , '[/\\]$', '', '')
+  " add to runtimepath
+  execute 'set runtimepath^=' .. s:dein_runtime
+endif
+" load TOML
+if dein#load_state(s:dein_dir)
+  call dein#begin(s:dein_dir)
+  call dein#end()
+  call dein#save_state()
+endif
+" install not-installed plugins on startup
+if dein#check_install()
+  call dein#install()
 endif
 
 syntax on
+filetype on
 filetype indent off
 filetype plugin on
 " encoding
