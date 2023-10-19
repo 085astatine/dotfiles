@@ -87,13 +87,16 @@ augroup FileTypeIndent
   autocmd FileType python setlocal tabstop=4 softtabstop=4 shiftwidth=4
 augroup end
 " highlight
-" highlight: cursor line number
+" highlight: cursorline & cursorline number
 set cursorline
-highlight clear CursorLine
 augroup number
   autocmd!
-  autocmd InsertEnter * highlight CursorLineNr ctermfg=red guifg=red
+  " CorsorLine
+  autocmd InsertLeave,VimEnter * highlight CursorLine ctermbg=17
+  autocmd InsertEnter * highlight CursorLine ctermbg=234
+  " CursorLineNr
   autocmd InsertLeave,VimEnter * highlight CursorLineNr ctermfg=blue guifg=blue
+  autocmd InsertEnter * highlight CursorLineNr ctermfg=red guifg=red
 augroup end
 " highlight: trailing spaces
 augroup HighlightTrailingSpaces
