@@ -93,7 +93,7 @@ augroup number
   autocmd!
   " CorsorLine
   autocmd InsertLeave,VimEnter * highlight CursorLine ctermbg=17
-  autocmd InsertEnter * highlight CursorLine ctermbg=234
+  autocmd InsertEnter * highlight CursorLine ctermbg=238
   " CursorLineNr
   autocmd InsertLeave,VimEnter * highlight CursorLineNr ctermfg=blue guifg=blue
   autocmd InsertEnter * highlight CursorLineNr ctermfg=red guifg=red
