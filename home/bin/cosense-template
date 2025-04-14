@@ -114,7 +114,7 @@ def weekly_report_list(year: int) -> str:
 
 
 def create_logger() -> logging.Logger:
-    logger = logging.getLogger("scrapbox-template")
+    logger = logging.getLogger("cosense-template")
     logger.setLevel(logging.WARNING)
     handler = logging.StreamHandler()
     handler.formatter = logging.Formatter(fmt="%(name)s:%(levelname)s:%(message)s")
