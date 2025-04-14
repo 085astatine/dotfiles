@@ -20,7 +20,7 @@ def main() -> None:
             print(Week(option.date).weekly_report_template())
         case "weekly_report_list":
             logger.info("weekly_report_list: %s", option.date)
-            print(weekly_report_list(option.date.year, logger))
+            print(weekly_report_list(option.date.year))
 
 
 TARGETS = Literal["weekly_report", "weekly_report_list"]
@@ -49,20 +49,17 @@ class Week:
         # title
         text.append(self.report_title())
         # tag
-        text.append(
-            " ".join(
-                f"#週報_{year}" for year in sorted(set(day.year for day in self.days()))
-            )
-        )
+        years = sorted(set(day.year for day in self.days()))
+        text.append(" ".join(f"#週報_{year}" for year in years))
         # link
         text.append(
             f"[{self.prev_week().report_title()}]<-"
             f" ->[{self.next_week().report_title()}]"
         )
         # days
+        kanji = "月火水木金土日"
         for day in self.days():
-            kanji = "月火水木金土日"[day.weekday()]
-            text.append(f"[* {day.month:02}/{day.day:02}({kanji})]")
+            text.append(f"[* {day.month:02}/{day.day:02}({kanji[day.weekday()]})]")
         return "\n".join(text)
 
     def days(self) -> list[datetime.date]:
@@ -97,10 +94,7 @@ class Week:
         return self.monday + datetime.timedelta(days=6)
 
 
-def weekly_report_list(
-    year: int,
-    logger: logging.Logger,
-) -> str:
+def weekly_report_list(year: int) -> str:
     text: list[str] = []
     # title
     text.append(f"週報 {year}")
