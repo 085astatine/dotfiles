@@ -3,7 +3,7 @@
 import argparse
 import datetime
 import logging
-from typing import Any, Literal, Optional, Sequence, cast, get_args
+from typing import Any, Literal, Optional, Self, Sequence, cast, get_args
 
 
 def main() -> None:
@@ -30,11 +30,11 @@ class Week:
     def __init__(self, date: datetime.date) -> None:
         self._monday = date - datetime.timedelta(days=date.weekday())
 
-    def next_week(self) -> "Week":
-        return Week(self.monday + datetime.timedelta(days=7))
+    def next_week(self) -> Self:
+        return type(self)(self.monday + datetime.timedelta(days=7))
 
-    def prev_week(self) -> "Week":
-        return Week(self.monday - datetime.timedelta(days=7))
+    def prev_week(self) -> Self:
+        return type(self)(self.monday - datetime.timedelta(days=7))
 
     def report_title(self) -> str:
         date_format = "{date.year:04}/{date.month:02}/{date.day:02}"
