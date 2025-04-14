@@ -3,7 +3,7 @@
 import argparse
 import datetime
 import logging
-from typing import Any, Literal, Optional, Self, Sequence, cast, get_args
+from typing import Any, Optional, Self, Sequence, cast
 
 
 def main() -> None:
@@ -21,9 +21,6 @@ def main() -> None:
         case "weekly_report_list":
             logger.info("weekly_report_list: %s", option.date)
             print(weekly_report_list(option.date.year))
-
-
-TARGETS = Literal["weekly_report", "weekly_report_list"]
 
 
 class Week:
@@ -124,26 +121,42 @@ def create_logger() -> logging.Logger:
 
 def option_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
-    # target
-    parser.add_argument(
-        "target",
-        choices=get_args(TARGETS),
+    subparser = parser.add_subparsers(
+        dest="target",
+        required=True,
         help="the type of template to be generated",
     )
-    # verbose
-    parser.add_argument(
+    # common parser
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument(
         "-v",
         "--verbose",
         action="store_true",
         help="set log level to debug",
     )
-    # date
-    parser.add_argument(
+    # weekly_report parser
+    wr_parser = subparser.add_parser(
+        "weekly_report",
+        parents=[common],
+    )
+    wr_parser.add_argument(
         "--date",
         action=DateAction,
         default=datetime.date.today(),
         metavar="YYYY-MM-DD",
-        help="date for weekly_report/weekly_report_list",
+        help="select the date to generate (default: today)",
+    )
+    # weekly_report_list parser
+    wrl_parser = subparser.add_parser(
+        "weekly_report_list",
+        parents=[common],
+    )
+    wrl_parser.add_argument(
+        "--date",
+        action=DateAction,
+        default=datetime.date.today(),
+        metavar="YYYY-MM-DD",
+        help="select the date to generate (default: today)",
     )
     return parser
 
