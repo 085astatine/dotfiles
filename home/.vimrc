@@ -70,9 +70,7 @@ set textwidth=0
 set colorcolumn=80
 " color
 set t_Co=256
-colorscheme molokai
-set background=light
-set background=dark
+colorscheme astatine
 " search
 set hlsearch
 set incsearch
