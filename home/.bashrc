@@ -22,6 +22,13 @@ bind '"\C-e": clear-screen'
 if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   # LANG
   export LANG=en_US.UTF-8
+  # PATH
+  if [ ! -d /usr/games ]; then
+    export PATH=${PATH/:\/usr\/games:/:}
+  fi
+  if [ ! -d /usr/local/games ]; then
+    export PATH=${PATH/:\/usr\/local\/games:/:}
+  fi
   # DISPLAY
   if [ ! -e /mnt/wslg ]; then
     export DISPLAY=`hostname`.mshome.net:0
