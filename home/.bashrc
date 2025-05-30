@@ -24,8 +24,10 @@ if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   export LANG=en_US.UTF-8
   # PATH
   export PATH=~/bin:$PATH
-  # Display
-  export DISPLAY=`hostname`.mshome.net:0
+  # DISPLAY
+  if [ ! -e /mnt/wslg ]; then
+    export DISPLAY=`hostname`.mshome.net:0
+  fi
 fi
 
 # IME: fcitx
