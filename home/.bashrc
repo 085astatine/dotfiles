@@ -35,10 +35,11 @@ if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   fi
 fi
 
-# IME: fcitx
-if [ -e /usr/bin/fcitx-autostart ]; then
+# IME: fcitx5
+if [ -e /usr/bin/fcitx5 ]; then
   export GTK_IM_MODULE=fcitx
   export QT_IM_MODULE=fcitx
   export XMODIFIERS=@im=fcitx
-  (fcitx-autostart >/dev/null 2>&1 &)
+  (! pgrep fcitx5 &>> /dev/null && \
+    fcitx5 --disable=wayland -d --verbose '*'=0 &>> /dev/null &)
 fi
