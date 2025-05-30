@@ -22,8 +22,6 @@ bind '"\C-e": clear-screen'
 if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   # LANG
   export LANG=en_US.UTF-8
-  # PATH
-  export PATH=~/bin:$PATH
   # DISPLAY
   if [ ! -e /mnt/wslg ]; then
     export DISPLAY=`hostname`.mshome.net:0
