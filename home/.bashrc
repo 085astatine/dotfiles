@@ -11,7 +11,9 @@ alias ls='ls --color=auto'
 PS1='\e[32m\u@\h\e[m \e[33m\w\e[m\n$? > '
 
 # PATH
-export PATH=~/bin:$PATH
+if [[ -d "${HOME}/bin" && ! "$PATH" =~ .*"${HOME}/bin:".* ]]; then
+  export PATH=~/bin:$PATH
+fi
 
 # Python
 export PIPENV_VENV_IN_PROJECT=true
