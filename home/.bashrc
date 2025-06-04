@@ -6,13 +6,30 @@
 [[ $- != *i* ]] && return
 
 alias ls='ls --color=auto'
+
+# Functions
+function prepend_path() {
+  if [[ ! ":$PATH:" =~ .*":$1:".* ]]; then
+    export PATH=$1:$PATH
+  fi
+}
+
+function remove_from_path() {
+  if [[ ":$PATH:" =~ .*":$1:".* ]]; then
+    export PATH=:${PATH}:
+    export PATH=${PATH/:$1:/:}
+    export PATH=${PATH#:}
+    export PATH=${PATH%:}
+  fi
+}
+
 # PS1
 #PS1='[\u@\h \W]\$ '
 PS1='\e[32m\u@\h\e[m \e[33m\w\e[m\n$? > '
 
 # PATH
-if [[ -d "${HOME}/bin" && ! "$PATH" =~ .*"${HOME}/bin:".* ]]; then
-  export PATH=~/bin:$PATH
+if [ -d "${HOME}/bin" ]; then
+  prepend_path "${HOME}/bin"
 fi
 
 # Python
@@ -30,10 +47,10 @@ if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   export LANG=en_US.UTF-8
   # PATH
   if [ ! -d /usr/games ]; then
-    export PATH=${PATH/:\/usr\/games:/:}
+    remove_from_path /usr/games
   fi
   if [ ! -d /usr/local/games ]; then
-    export PATH=${PATH/:\/usr\/local\/games:/:}
+    remove_from_path /usr/local/games
   fi
   # DISPLAY
   if [ ! -e /mnt/wslg ]; then
@@ -49,3 +66,7 @@ if [ -e /usr/bin/fcitx5 ]; then
   (! pgrep fcitx5 &>> /dev/null && \
     fcitx5 --disable=wayland -d --verbose '*'=0 &>> /dev/null &)
 fi
+
+# Unset Functions
+unset -f prepend_path
+unset -f remove_from_path
