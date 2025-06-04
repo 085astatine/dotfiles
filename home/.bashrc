@@ -54,7 +54,9 @@ if [ -e /mnt/c/Windows/System32/wsl.exe ]; then
   fi
   # DISPLAY
   if [ ! -e /mnt/wslg ]; then
-    export DISPLAY=`hostname`.mshome.net:0
+    display=$(hostname).mshome.net:0
+    export DISPLAY=$display
+    unset -v display
   fi
 fi
 
