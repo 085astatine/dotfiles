@@ -2,7 +2,5 @@
 # ~/.bash_profile
 #
 
-# path
-export PATH=~/bin:$PATH
-# bashrc
+# load .bashrc
 [[ -f ~/.bashrc ]] && . ~/.bashrc
