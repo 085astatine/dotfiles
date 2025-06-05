@@ -24,8 +24,7 @@ function remove_from_path() {
 }
 
 # PS1
-#PS1='[\u@\h \W]\$ '
-PS1='\e[32m\u@\h\e[m \e[33m\w\e[m\n$? > '
+PS1='\[\e[32m\u@\h\e[m\] \[\e[33m\w\e[m\]\n$? > '
 
 # PATH
 if [ -d "${HOME}/bin" ]; then
